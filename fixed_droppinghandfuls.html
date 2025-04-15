@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropping Handfuls Inventory</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-dark: #6a1cb2;
+            --primary-light: #aa5fe2;
+            --text-on-primary: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+        }
+        .header {
+            background-color: var(--primary);
+            color: var(--text-on-primary);
+            padding: 1rem;
+            text-align: center;
+        }
+        .tab-button {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex: 1;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .tab-button.active {
+            background-color: var(--primary-light);
+            color: var(--text-on-primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        .tab-content {
+            display: none;
+            padding: 1rem;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .input-field, .select-field, .textarea-field {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            background-color: #f9fafb;
+        }
+        .button {
+            background-color: var(--primary);
+            color: var(--text-on-primary);
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: var(--primary-dark);
+        }
+        .button-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .button-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .button-danger:hover {
+            background-color: #c82333;
+        }
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.25rem;
+            background-color: #f9fafb;
+            margin-bottom: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            display: block;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        .img-thumbnail {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .inventory-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .input-group {
+                margin-bottom: 0.75rem;
+            }
+            th, td {
+                padding: 0.5rem;
+            }
+            .button {
+                padding: 0.5rem 0.75rem;
+            }
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1 class="text-xl font-bold">Dropping Handfuls Inventory</h1>
+        </div>
+        
+        <div class="tabs flex">
+            <div class="tab-button active" data-tab="inventory">
+                <i class="fas fa-boxes"></i> Inventory
+            </div>
+            <div class="tab-button" data-tab="add-item">
+                <i class="fas fa-plus-circle"></i> Add Item
+            </div>
+            <div class="tab-button" data-tab="import-export">
+                <i class="fas fa-file-import"></i> Import/Export
+            </div>
+        </div>
+        
+        <!-- Inventory Tab -->
+        <div id="inventory" class="tab-content active">
+            <div class="mb-4">
+                <input type="text" id="inventorySearch" class="input-field" placeholder="Search inventory...">
+            </div>
+            
+            <div class="table-responsive">
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Item Name</th>
+                            <th>Storage Location</th>
+                            <th>Category</th>
+                            <th>Cost</th>
+                            <th>Price</th>
+                            <th>Profit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- Inventory items will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-box-open fa-3x mb-3"></i>
+                <p>No inventory items found. Add some items to get started!</p>
+            </div>
+        </div>
+        
+        <!-- Add Item Tab -->
+        <div id="add-item" class="tab-content">
+            <form id="addItemForm">
+                <div class="input-group">
+                    <label class="input-label" for="itemName">Item Name *</label>
+                    <input type="text" id="itemName" class="input-field" required>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="productId">Product ID *</label>
+                    <input type="text" id="productId" class="input-field" required>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="storageLocation">Storage Location *</label>
+                    <input type="text" id="storageLocation" class="input-field" required>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="category">Category</label>
+                    <select id="category" class="select-field">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Home Goods">Home Goods</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Toys">Toys</option>
+                        <option value="Kitchen">Kitchen</option>
+                        <option value="Beauty">Beauty</option>
+                        <option value="Books">Books</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="purchaseCost">Purchase Cost</label>
+                    <input type="number" id="purchaseCost" class="input-field" step="0.01" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="sellingPrice">Selling Price</label>
+                    <input type="number" id="sellingPrice" class="input-field" step="0.01" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="condition">Condition</label>
+                    <select id="condition" class="select-field">
+                        <option value="New">New</option>
+                        <option value="Like New">Like New</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="photoUpload">Photo</label>
+                    <input type="file" id="photoUpload" class="input-field" accept="image/*">
+                    <div id="photoPreview" class="mt-2"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="description">Description</label>
+                    <textarea id="description" class="textarea-field" rows="3"></textarea>
+                </div>
+                
+                <input type="hidden" id="editItemId" value="">
+                <button type="submit" id="submitButton" class="button w-full">Add Item</button>
+            </form>
+        </div>
+        
+        <!-- Import/Export Tab -->
+        <div id="import-export" class="tab-content">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3">Export Inventory</h2>
+                <p class="mb-3">Download your current inventory as a CSV file.</p>
+                <button id="exportCsvButton" class="button">
+                    <i class="fas fa-file-export mr-2"></i> Export to CSV
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3">Import from CSV</h2>
+                <p class="mb-3">Upload a CSV file to import inventory items. Make sure your CSV has the following columns:</p>
+                <code class="block p-3 bg-gray-100 rounded mb-3 overflow-x-auto">
+                    Item Name, Product ID, Storage Location, Category, Purchase Cost, Selling Price, Condition, Description
+                </code>
+                
+                <div class="mb-3">
+                    <button id="downloadSampleCsvButton" class="button button-secondary">
+                        <i class="fas fa-download mr-2"></i> Download Sample CSV
+                    </button>
+                </div>
+                
+                <div class="file-upload">
+                    <i class="fas fa-file-csv fa-2x mb-2"></i>
+                    <p class="mb-2">Choose CSV File</p>
+                    <input type="file" id="csvFileUpload" accept=".csv">
+                </div>
+                
+                <button id="importCsvButton" class="button w-full">
+                    <i class="fas fa-file-import mr-2"></i> Import from CSV
+                </button>
+                
+                <div id="importResults" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            let currentEditItemIndex = -1;
+            const emptyState = document.getElementById('emptyState');
+            const inventoryTableBody = document.getElementById('inventoryTableBody');
+            const addItemForm = document.getElementById('addItemForm');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const photoUpload = document.getElementById('photoUpload');
+            const photoPreview = document.getElementById('photoPreview');
+            const inventorySearch = document.getElementById('inventorySearch');
+            const exportCsvButton = document.getElementById('exportCsvButton');
+            const importCsvButton = document.getElementById('importCsvButton');
+            const downloadSampleCsvButton = document.getElementById('downloadSampleCsvButton');
+            const csvFileUpload = document.getElementById('csvFileUpload');
+            const importResults = document.getElementById('importResults');
+            
+            // Tab switching functionality
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    // Update active button
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Update active content
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Reset form when switching to add item tab (unless editing)
+                    if (tabId === 'add-item' && currentEditItemIndex === -1) {
+                        addItemForm.reset();
+                        photoPreview.innerHTML = '';
+                        document.getElementById('editItemId').value = '';
+                        document.getElementById('submitButton').textContent = 'Add Item';
+                    }
+                });
+            });
+            
+            // Handle photo upload preview
+            photoUpload.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photoPreview.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Handle inventory search
+            inventorySearch.addEventListener('input', function() {
+                renderInventory();
+            });
+            
+            // Render inventory table
+            function renderInventory() {
+                const searchTerm = inventorySearch.value.toLowerCase();
+                
+                let filteredInventory = inventory;
+                if (searchTerm) {
+                    filteredInventory = inventory.filter(item => 
+                        item.name.toLowerCase().includes(searchTerm) || 
+                        item.productId.toLowerCase().includes(searchTerm) ||
+                        item.storageLocation.toLowerCase().includes(searchTerm) ||
+                        item.category.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                // Show/hide empty state
+                if (filteredInventory.length === 0) {
+                    emptyState.style.display = 'block';
+                    inventoryTableBody.innerHTML = '';
+                } else {
+                    emptyState.style.display = 'none';
+                    
+                    // Build table rows
+                    inventoryTableBody.innerHTML = '';
+                    filteredInventory.forEach((item, index) => {
+                        const profit = (parseFloat(item.sellingPrice) - parseFloat(item.purchaseCost)).toFixed(2);
+                        const tr = document.createElement('tr');
+                        
+                        tr.innerHTML = `
+                            <td>${item.productId}</td>
+                            <td>${item.name}</td>
+                            <td>${item.storageLocation}</td>
+                            <td>${item.category}</td>
+                            <td>$${parseFloat(item.purchaseCost).toFixed(2)}</td>
+                            <td>$${parseFloat(item.sellingPrice).toFixed(2)}</td>
+                            <td>$${profit}</td>
+                            <td>
+                                <div class="inventory-actions">
+                                    <button class="action-button button edit-button" data-index="${inventory.indexOf(item)}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-button button button-danger delete-button" data-index="${inventory.indexOf(item)}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        
+                        inventoryTableBody.appendChild(tr);
+                    });
+                    
+                    // Add edit and delete event listeners
+                    document.querySelectorAll('.edit-button').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const index = parseInt(button.getAttribute('data-index'));
+                            editItem(index);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-button').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const index = parseInt(button.getAttribute('data-index'));
+                            deleteItem(index);
+                        });
+                    });
+                }
+            }
+            
+            // Add/Edit item form submission
+            addItemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const itemData = {
+                    name: document.getElementById('itemName').value,
+                    productId: document.getElementById('productId').value,
+                    storageLocation: document.getElementById('storageLocation').value,
+                    category: document.getElementById('category').value,
+                    purchaseCost: document.getElementById('purchaseCost').value || '0.00',
+                    sellingPrice: document.getElementById('sellingPrice').value || '0.00',
+                    condition: document.getElementById('condition').value,
+                    description: document.getElementById('description').value,
+                    photo: photoPreview.innerHTML ? photoPreview.querySelector('img').src : ''
+                };
+                
+                if (currentEditItemIndex !== -1) {
+                    // Update existing item
+                    inventory[currentEditItemIndex] = itemData;
+                    currentEditItemIndex = -1;
+                } else {
+                    // Add new item
+                    inventory.push(itemData);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                
+                // Reset form and switch to inventory tab
+                addItemForm.reset();
+                photoPreview.innerHTML = '';
+                document.getElementById('editItemId').value = '';
+                document.getElementById('submitButton').textContent = 'Add Item';
+                
+                // Switch to inventory tab
+                document.querySelector('.tab-button[data-tab="inventory"]').click();
+                
+                // Refresh inventory display
+                renderInventory();
+            });
+            
+            // Edit item function
+            function editItem(index) {
+                const item = inventory[index];
+                currentEditItemIndex = index;
+                
+                // Populate form with item data
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('productId').value = item.productId;
+                document.getElementById('storageLocation').value = item.storageLocation;
+                document.getElementById('category').value = item.category;
+                document.getElementById('purchaseCost').value = item.purchaseCost;
+                document.getElementById('sellingPrice').value = item.sellingPrice;
+                document.getElementById('condition').value = item.condition;
+                document.getElementById('description').value = item.description;
+                
+                if (item.photo) {
+                    photoPreview.innerHTML = `<img src="${item.photo}" class="image-preview">`;
+                } else {
+                    photoPreview.innerHTML = '';
+                }
+                
+                document.getElementById('editItemId').value = index;
+                document.getElementById('submitButton').textContent = 'Update Item';
+                
+                // Switch to add item tab
+                document.querySelector('.tab-button[data-tab="add-item"]').click();
+            }
+            
+            // Delete item function
+            function deleteItem(index) {
+                if (confirm('Are you sure you want to delete this item?')) {
+                    inventory.splice(index, 1);
+                    localStorage.setItem('inventory', JSON.stringify(inventory));
+                    renderInventory();
+                }
+            }
+            
+            // Export to CSV
+            exportCsvButton.addEventListener('click', function() {
+                if (inventory.length === 0) {
+                    alert('No inventory items to export.');
+                    return;
+                }
+                
+                // Create CSV content
+                const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];
+                let csvContent = headers.join(',') + '\n';
+                
+                inventory.forEach(item => {
+                    const row = [
+                        `"${item.name.replace(/"/g, '""')}"`,
+                        `"${item.productId.replace(/"/g, '""')}"`,
+                        `"${item.storageLocation.replace(/"/g, '""')}"`,
+                        `"${item.category.replace(/"/g, '""')}"`,
+                        item.purchaseCost,
+                        item.sellingPrice,
+                        `"${item.condition.replace(/"/g, '""')}"`,
+                        `"${item.description.replace(/"/g, '""')}"`
+                    ];
+                    csvContent += row.join(',') + '\n';
+                });
+                
+                // Create download link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'dropping_handfuls_inventory.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Download sample CSV
+            downloadSampleCsvButton.addEventListener('click', function() {
+                const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];
+                const sampleData = [
+                    ['"Smart Watch"', '"ELEC001"', '"Shelf A1"', '"Electronics"', '25.00', '65.00', '"Like New"', '"Amazon returned smartwatch, works perfectly"'],
+                    ['"Kitchen Mixer"', '"HOME002"', '"Bin B3"', '"Home Goods"', '35.00', '89.99', '"Good"', '"Stand mixer, minor cosmetic damage on base"'],
+                    ['"Toy Robot"', '"TOY003"', '"Box C2"', '"Toys"', '10.00', '24.99', '"New"', '"Still in original packaging"']
+                ];
+                
+                let csvContent = headers.join(',') + '\n';
+                sampleData.forEach(row => {
+                    csvContent += row.join(',') + '\n';
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'sample_inventory.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Import from CSV
+            importCsvButton.addEventListener('click', function() {
+                const file = csvFileUpload.files[0];
+                if (!file) {
+                    alert('Please select a CSV file to import.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const contents = e.target.result;
+                    const lines = contents.split('\n');
+                    
+                    if (lines.length < 2) {
+                        importResults.innerHTML = '<div class="p-3 bg-red-100 text-red-700 rounded">CSV file is empty or invalid.</div>';
+                        return;
+                    }
+                    
+                    // Get headers
+                    const headers = lines[0].split(',').map(header => header.trim());
+                    const requiredHeaders = ['Item Name', 'Product ID', 'Storage Location'];
+                    
+                    // Validate headers
+                    const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+                    if (missingHeaders.length > 0) {
+                        importResults.innerHTML = `<div class="p-3 bg-red-100 text-red-700 rounded">CSV file is missing required headers: ${missingHeaders.join(', ')}</div>`;
+                        return;
+                    }
+                    
+                    // Process rows
+                    let importedCount = 0;
+                    let errors = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue; // Skip empty lines
+                        
+                        try {
+                            // Parse CSV line properly handling quotes
+                            const values = parseCSVLine(lines[i]);
+                            
+                            // Create item object
+                            const item = {
+                                name: values[headers.indexOf('Item Name')] || '',
+                                productId: values[headers.indexOf('Product ID')] || '',
+                                storageLocation: values[headers.indexOf('Storage Location')] || '',
+                                category: values[headers.indexOf('Category')] || 'Other',
+                                purchaseCost: values[headers.indexOf('Purchase Cost')] || '0.00',
+                                sellingPrice: values[headers.indexOf('Selling Price')] || '0.00',
+                                condition: values[headers.indexOf('Condition')] || 'Good',
+                                description: values[headers.indexOf('Description')] || '',
+                                photo: ''
+                            };
+                            
+                            // Validate required fields
+                            if (!item.name || !item.productId || !item.storageLocation) {
+                                errors.push(`Row ${i}: Missing required fields`);
+                                continue;
+                            }
+                            
+                            // Check for duplicate Product ID
+                            const duplicateIndex = inventory.findIndex(existingItem => existingItem.productId === item.productId);
+                            if (duplicateIndex !== -1) {
+                                // Update existing item
+                                inventory[duplicateIndex] = item;
+                            } else {
+                                // Add new item
+                                inventory.push(item);
+                            }
+                            
+                            importedCount++;
+                        } catch (error) {
+                            errors.push(`Row ${i}: ${error.message}`);
+                        }
+                    }
+                    
+                    // Save to localStorage
+                    localStorage.setItem('inventory', JSON.stringify(inventory));
+                    
+                    // Show results
+                    let resultHTML = `<div class="p-3 bg-green-100 text-green-700 rounded mb-2">Successfully imported ${importedCount} items.</div>`;
+                    
+                    if (errors.length > 0) {
+                        resultHTML += `<div class="p-3 bg-yellow-100 text-yellow-700 rounded">Errors encountered:
+                            <ul class="list-disc pl-5 mt-1">
+                                ${errors.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                    }
+                    
+                    importResults.innerHTML = resultHTML;
+                    
+                    // Refresh inventory display
+                    renderInventory();
+                    
+                    // Reset file input
+                    csvFileUpload.value = '';
+                };
+                
+                reader.readAsText(file);
+            });
+            
+            // Helper function to parse CSV line handling quotes correctly
+            function parseCSVLine(line) {
+                const result = [];
+                let cell = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        // Handle quotes within quotes (escaped quotes)
+                        if (inQuotes && i < line.length - 1 && line[i + 1] === '"') {
+                            cell += '"';
+                            i++; // Skip next quote
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(cell);
+                        cell = '';
+                    } else {
+                        cell += char;
+                    }
+                }
+                
+                result.push(cell); // Add the last cell
+                return result;
+            }
+            
+            // Initialize the inventory display
+            renderInventory();
+        });
+    </script>
+</body>
+</html>
