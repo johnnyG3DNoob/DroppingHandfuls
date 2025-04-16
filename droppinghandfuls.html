@@ -1,722 +1,738 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dropping Handfuls Inventory</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #8a2be2;
-            --primary-dark: #6a1cb2;
-            --primary-light: #aa5fe2;
-            --text-on-primary: #ffffff;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-        .app-container {
-            max-width: 100%;
-            margin: 0 auto;
-            background-color: white;
-            min-height: 100vh;
-        }
-        .header {
-            background-color: var(--primary);
-            color: var(--text-on-primary);
-            padding: 1rem;
-            text-align: center;
-        }
-        .tab-button {
-            padding: 0.75rem 0.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            flex: 1;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        .tab-button.active {
-            background-color: var(--primary-light);
-            color: var(--text-on-primary);
-            border-bottom: 2px solid var(--primary);
-        }
-        .tab-content {
-            display: none;
-            padding: 1rem;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .input-group {
-            margin-bottom: 1rem;
-        }
-        .input-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        .input-field, .select-field, .textarea-field {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.25rem;
-            background-color: #f9fafb;
-        }
-        .button {
-            background-color: var(--primary);
-            color: var(--text-on-primary);
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: var(--primary-dark);
-        }
-        .button-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .button-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .button-danger:hover {
-            background-color: #c82333;
-        }
-        .file-upload {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            border: 2px dashed #d1d5db;
-            border-radius: 0.25rem;
-            background-color: #f9fafb;
-            margin-bottom: 1rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-            overflow-x: auto;
-            display: block;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th {
-            background-color: #f3f4f6;
-            font-weight: 600;
-        }
-        .empty-state {
-            padding: 2rem;
-            text-align: center;
-            color: #6c757d;
-        }
-        .img-thumbnail {
-            max-width: 60px;
-            max-height: 60px;
-            object-fit: cover;
-            border-radius: 0.25rem;
-        }
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .inventory-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .action-button {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            border-radius: 0.25rem;
-        }
-        .image-preview {
-            max-width: 100%;
-            max-height: 150px;
-            margin-top: 0.5rem;
-        }
-        @media (max-width: 768px) {
-            .input-group {
-                margin-bottom: 0.75rem;
-            }
-            th, td {
-                padding: 0.5rem;
-            }
-            .button {
-                padding: 0.5rem 0.75rem;
-            }
-            .table-responsive {
-                font-size: 0.875rem;
-            }
-        }
-    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <h1 class="text-xl font-bold">Dropping Handfuls Inventory</h1>
-        </div>
-        
-        <div class="tabs flex">
-            <div class="tab-button active" data-tab="inventory">
-                <i class="fas fa-boxes"></i> Inventory
-            </div>
-            <div class="tab-button" data-tab="add-item">
-                <i class="fas fa-plus-circle"></i> Add Item
-            </div>
-            <div class="tab-button" data-tab="import-export">
-                <i class="fas fa-file-import"></i> Import/Export
-            </div>
-        </div>
-        
-        <!-- Inventory Tab -->
-        <div id="inventory" class="tab-content active">
-            <div class="mb-4">
-                <input type="text" id="inventorySearch" class="input-field" placeholder="Search inventory...">
-            </div>
-            
-            <div class="table-responsive">
-                <table id="inventoryTable">
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Item Name</th>
-                            <th>Storage Location</th>
-                            <th>Category</th>
-                            <th>Cost</th>
-                            <th>Price</th>
-                            <th>Profit</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryTableBody">
-                        <!-- Inventory items will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="emptyState" class="empty-state">
-                <i class="fas fa-box-open fa-3x mb-3"></i>
-                <p>No inventory items found. Add some items to get started!</p>
-            </div>
-        </div>
-        
-        <!-- Add Item Tab -->
-        <div id="add-item" class="tab-content">
-            <form id="addItemForm">
-                <div class="input-group">
-                    <label class="input-label" for="itemName">Item Name *</label>
-                    <input type="text" id="itemName" class="input-field" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="productId">Product ID *</label>
-                    <input type="text" id="productId" class="input-field" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="storageLocation">Storage Location *</label>
-                    <input type="text" id="storageLocation" class="input-field" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="category">Category</label>
-                    <select id="category" class="select-field">
-                        <option value="Electronics">Electronics</option>
-                        <option value="Home Goods">Home Goods</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Toys">Toys</option>
-                        <option value="Kitchen">Kitchen</option>
-                        <option value="Beauty">Beauty</option>
-                        <option value="Books">Books</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="purchaseCost">Purchase Cost</label>
-                    <input type="number" id="purchaseCost" class="input-field" step="0.01" min="0">
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="sellingPrice">Selling Price</label>
-                    <input type="number" id="sellingPrice" class="input-field" step="0.01" min="0">
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="condition">Condition</label>
-                    <select id="condition" class="select-field">
-                        <option value="New">New</option>
-                        <option value="Like New">Like New</option>
-                        <option value="Good">Good</option>
-                        <option value="Fair">Fair</option>
-                        <option value="Poor">Poor</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="photoUpload">Photo</label>
-                    <input type="file" id="photoUpload" class="input-field" accept="image/*">
-                    <div id="photoPreview" class="mt-2"></div>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label" for="description">Description</label>
-                    <textarea id="description" class="textarea-field" rows="3"></textarea>
-                </div>
-                
-                <input type="hidden" id="editItemId" value="">
-                <button type="submit" id="submitButton" class="button w-full">Add Item</button>
-            </form>
-        </div>
-        
-        <!-- Import/Export Tab -->
-        <div id="import-export" class="tab-content">
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold mb-3">Export Inventory</h2>
-                <p class="mb-3">Download your current inventory as a CSV file.</p>
-                <button id="exportCsvButton" class="button">
-                    <i class="fas fa-file-export mr-2"></i> Export to CSV
-                </button>
-            </div>
-            
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold mb-3">Import from CSV</h2>
-                <p class="mb-3">Upload a CSV file to import inventory items. Make sure your CSV has the following columns:</p>
-                <code class="block p-3 bg-gray-100 rounded mb-3 overflow-x-auto">
-                    Item Name, Product ID, Storage Location, Category, Purchase Cost, Selling Price, Condition, Description
-                </code>
-                
-                <div class="mb-3">
-                    <button id="downloadSampleCsvButton" class="button button-secondary">
-                        <i class="fas fa-download mr-2"></i> Download Sample CSV
-                    </button>
-                </div>
-                
-                <div class="file-upload">
-                    <i class="fas fa-file-csv fa-2x mb-2"></i>
-                    <p class="mb-2">Choose CSV File</p>
-                    <input type="file" id="csvFileUpload" accept=".csv">
-                </div>
-                
-                <button id="importCsvButton" class="button w-full">
-                    <i class="fas fa-file-import mr-2"></i> Import from CSV
-                </button>
-                
-                <div id="importResults" class="mt-3"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize variables
-            let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
-            let currentEditItemIndex = -1;
-            const emptyState = document.getElementById('emptyState');
-            const inventoryTableBody = document.getElementById('inventoryTableBody');
-            const addItemForm = document.getElementById('addItemForm');
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-            const photoUpload = document.getElementById('photoUpload');
-            const photoPreview = document.getElementById('photoPreview');
-            const inventorySearch = document.getElementById('inventorySearch');
-            const exportCsvButton = document.getElementById('exportCsvButton');
-            const importCsvButton = document.getElementById('importCsvButton');
-            const downloadSampleCsvButton = document.getElementById('downloadSampleCsvButton');
-            const csvFileUpload = document.getElementById('csvFileUpload');
-            const importResults = document.getElementById('importResults');
-            
-            // Tab switching functionality
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const tabId = button.getAttribute('data-tab');
-                    
-                    // Update active button
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    
-                    // Update active content
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    document.getElementById(tabId).classList.add('active');
-                    
-                    // Reset form when switching to add item tab (unless editing)
-                    if (tabId === 'add-item' && currentEditItemIndex === -1) {
-                        addItemForm.reset();
-                        photoPreview.innerHTML = '';
-                        document.getElementById('editItemId').value = '';
-                        document.getElementById('submitButton').textContent = 'Add Item';
-                    }
-                });
-            });
-            
-            // Handle photo upload preview
-            photoUpload.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        photoPreview.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // Handle inventory search
-            inventorySearch.addEventListener('input', function() {
-                renderInventory();
-            });
-            
-            // Render inventory table
-            function renderInventory() {
-                const searchTerm = inventorySearch.value.toLowerCase();
-                
-                let filteredInventory = inventory;
-                if (searchTerm) {
-                    filteredInventory = inventory.filter(item => 
-                        item.name.toLowerCase().includes(searchTerm) || 
-                        item.productId.toLowerCase().includes(searchTerm) ||
-                        item.storageLocation.toLowerCase().includes(searchTerm) ||
-                        item.category.toLowerCase().includes(searchTerm)
-                    );
-                }
-                
-                // Show/hide empty state
-                if (filteredInventory.length === 0) {
-                    emptyState.style.display = 'block';
-                    inventoryTableBody.innerHTML = '';
-                } else {
-                    emptyState.style.display = 'none';
-                    
-                    // Build table rows
-                    inventoryTableBody.innerHTML = '';
-                    filteredInventory.forEach((item, index) => {
-                        const profit = (parseFloat(item.sellingPrice) - parseFloat(item.purchaseCost)).toFixed(2);
-                        const tr = document.createElement('tr');
-                        
-                        tr.innerHTML = `
-                            <td>${item.productId}</td>
-                            <td>${item.name}</td>
-                            <td>${item.storageLocation}</td>
-                            <td>${item.category}</td>
-                            <td>$${parseFloat(item.purchaseCost).toFixed(2)}</td>
-                            <td>$${parseFloat(item.sellingPrice).toFixed(2)}</td>
-                            <td>$${profit}</td>
-                            <td>
-                                <div class="inventory-actions">
-                                    <button class="action-button button edit-button" data-index="${inventory.indexOf(item)}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="action-button button button-danger delete-button" data-index="${inventory.indexOf(item)}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        
-                        inventoryTableBody.appendChild(tr);
-                    });
-                    
-                    // Add edit and delete event listeners
-                    document.querySelectorAll('.edit-button').forEach(button => {
-                        button.addEventListener('click', function() {
-                            const index = parseInt(button.getAttribute('data-index'));
-                            editItem(index);
-                        });
-                    });
-                    
-                    document.querySelectorAll('.delete-button').forEach(button => {
-                        button.addEventListener('click', function() {
-                            const index = parseInt(button.getAttribute('data-index'));
-                            deleteItem(index);
-                        });
-                    });
-                }
-            }
-            
-            // Add/Edit item form submission
-            addItemForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Get form values
-                const itemData = {
-                    name: document.getElementById('itemName').value,
-                    productId: document.getElementById('productId').value,
-                    storageLocation: document.getElementById('storageLocation').value,
-                    category: document.getElementById('category').value,
-                    purchaseCost: document.getElementById('purchaseCost').value || '0.00',
-                    sellingPrice: document.getElementById('sellingPrice').value || '0.00',
-                    condition: document.getElementById('condition').value,
-                    description: document.getElementById('description').value,
-                    photo: photoPreview.innerHTML ? photoPreview.querySelector('img').src : ''
-                };
-                
-                if (currentEditItemIndex !== -1) {
-                    // Update existing item
-                    inventory[currentEditItemIndex] = itemData;
-                    currentEditItemIndex = -1;
-                } else {
-                    // Add new item
-                    inventory.push(itemData);
-                }
-                
-                // Save to localStorage
-                localStorage.setItem('inventory', JSON.stringify(inventory));
-                
-                // Reset form and switch to inventory tab
-                addItemForm.reset();
-                photoPreview.innerHTML = '';
-                document.getElementById('editItemId').value = '';
-                document.getElementById('submitButton').textContent = 'Add Item';
-                
-                // Switch to inventory tab
-                document.querySelector('.tab-button[data-tab="inventory"]').click();
-                
-                // Refresh inventory display
-                renderInventory();
-            });
-            
-            // Edit item function
-            function editItem(index) {
-                const item = inventory[index];
-                currentEditItemIndex = index;
-                
-                // Populate form with item data
-                document.getElementById('itemName').value = item.name;
-                document.getElementById('productId').value = item.productId;
-                document.getElementById('storageLocation').value = item.storageLocation;
-                document.getElementById('category').value = item.category;
-                document.getElementById('purchaseCost').value = item.purchaseCost;
-                document.getElementById('sellingPrice').value = item.sellingPrice;
-                document.getElementById('condition').value = item.condition;
-                document.getElementById('description').value = item.description;
-                
-                if (item.photo) {
-                    photoPreview.innerHTML = `<img src="${item.photo}" class="image-preview">`;
-                } else {
-                    photoPreview.innerHTML = '';
-                }
-                
-                document.getElementById('editItemId').value = index;
-                document.getElementById('submitButton').textContent = 'Update Item';
-                
-                // Switch to add item tab
-                document.querySelector('.tab-button[data-tab="add-item"]').click();
-            }
-            
-            // Delete item function
-            function deleteItem(index) {
-                if (confirm('Are you sure you want to delete this item?')) {
-                    inventory.splice(index, 1);
-                    localStorage.setItem('inventory', JSON.stringify(inventory));
-                    renderInventory();
-                }
-            }
-            
-            // Export to CSV
-            exportCsvButton.addEventListener('click', function() {
-                if (inventory.length === 0) {
-                    alert('No inventory items to export.');
-                    return;
-                }
-                
-                // Create CSV content
-                const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];
-                let csvContent = headers.join(',') + '\n';
-                
-                inventory.forEach(item => {
-                    const row = [
-                        `"${item.name.replace(/"/g, '""')}"`,
-                        `"${item.productId.replace(/"/g, '""')}"`,
-                        `"${item.storageLocation.replace(/"/g, '""')}"`,
-                        `"${item.category.replace(/"/g, '""')}"`,
-                        item.purchaseCost,
-                        item.sellingPrice,
-                        `"${item.condition.replace(/"/g, '""')}"`,
-                        `"${item.description.replace(/"/g, '""')}"`
-                    ];
-                    csvContent += row.join(',') + '\n';
-                });
-                
-                // Create download link
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'dropping_handfuls_inventory.csv');
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            });
-            
-            // Download sample CSV
-            downloadSampleCsvButton.addEventListener('click', function() {
-                const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];
-                const sampleData = [
-                    ['"Smart Watch"', '"ELEC001"', '"Shelf A1"', '"Electronics"', '25.00', '65.00', '"Like New"', '"Amazon returned smartwatch, works perfectly"'],
-                    ['"Kitchen Mixer"', '"HOME002"', '"Bin B3"', '"Home Goods"', '35.00', '89.99', '"Good"', '"Stand mixer, minor cosmetic damage on base"'],
-                    ['"Toy Robot"', '"TOY003"', '"Box C2"', '"Toys"', '10.00', '24.99', '"New"', '"Still in original packaging"']
-                ];
-                
-                let csvContent = headers.join(',') + '\n';
-                sampleData.forEach(row => {
-                    csvContent += row.join(',') + '\n';
-                });
-                
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'sample_inventory.csv');
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            });
-            
-            // Import from CSV
-            importCsvButton.addEventListener('click', function() {
-                const file = csvFileUpload.files[0];
-                if (!file) {
-                    alert('Please select a CSV file to import.');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const contents = e.target.result;
-                    const lines = contents.split('\n');
-                    
-                    if (lines.length < 2) {
-                        importResults.innerHTML = '<div class="p-3 bg-red-100 text-red-700 rounded">CSV file is empty or invalid.</div>';
-                        return;
-                    }
-                    
-                    // Get headers
-                    const headers = lines[0].split(',').map(header => header.trim());
-                    const requiredHeaders = ['Item Name', 'Product ID', 'Storage Location'];
-                    
-                    // Validate headers
-                    const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
-                    if (missingHeaders.length > 0) {
-                        importResults.innerHTML = `<div class="p-3 bg-red-100 text-red-700 rounded">CSV file is missing required headers: ${missingHeaders.join(', ')}</div>`;
-                        return;
-                    }
-                    
-                    // Process rows
-                    let importedCount = 0;
-                    let errors = [];
-                    
-                    for (let i = 1; i < lines.length; i++) {
-                        if (!lines[i].trim()) continue; // Skip empty lines
-                        
-                        try {
-                            // Parse CSV line properly handling quotes
-                            const values = parseCSVLine(lines[i]);
-                            
-                            // Create item object
-                            const item = {
-                                name: values[headers.indexOf('Item Name')] || '',
-                                productId: values[headers.indexOf('Product ID')] || '',
-                                storageLocation: values[headers.indexOf('Storage Location')] || '',
-                                category: values[headers.indexOf('Category')] || 'Other',
-                                purchaseCost: values[headers.indexOf('Purchase Cost')] || '0.00',
-                                sellingPrice: values[headers.indexOf('Selling Price')] || '0.00',
-                                condition: values[headers.indexOf('Condition')] || 'Good',
-                                description: values[headers.indexOf('Description')] || '',
-                                photo: ''
-                            };
-                            
-                            // Validate required fields
-                            if (!item.name || !item.productId || !item.storageLocation) {
-                                errors.push(`Row ${i}: Missing required fields`);
-                                continue;
-                            }
-                            
-                            // Check for duplicate Product ID
-                            const duplicateIndex = inventory.findIndex(existingItem => existingItem.productId === item.productId);
-                            if (duplicateIndex !== -1) {
-                                // Update existing item
-                                inventory[duplicateIndex] = item;
-                            } else {
-                                // Add new item
-                                inventory.push(item);
-                            }
-                            
-                            importedCount++;
-                        } catch (error) {
-                            errors.push(`Row ${i}: ${error.message}`);
-                        }
-                    }
-                    
-                    // Save to localStorage
-                    localStorage.setItem('inventory', JSON.stringify(inventory));
-                    
-                    // Show results
-                    let resultHTML = `<div class="p-3 bg-green-100 text-green-700 rounded mb-2">Successfully imported ${importedCount} items.</div>`;
-                    
-                    if (errors.length > 0) {
-                        resultHTML += `<div class="p-3 bg-yellow-100 text-yellow-700 rounded">Errors encountered:
-                            <ul class="list-disc pl-5 mt-1">
-                                ${errors.map(error => `<li>${error}</li>`).join('')}
-                            </ul>
-                        </div>`;
-                    }
-                    
-                    importResults.innerHTML = resultHTML;
-                    
-                    // Refresh inventory display
-                    renderInventory();
-                    
-                    // Reset file input
-                    csvFileUpload.value = '';
-                };
-                
-                reader.readAsText(file);
-            });
-            
-            // Helper function to parse CSV line handling quotes correctly
-            function parseCSVLine(line) {
-                const result = [];
-                let cell = '';
-                let inQuotes = false;
-                
-                for (let i = 0; i < line.length; i++) {
-                    const char = line[i];
-                    
-                    if (char === '"') {
-                        // Handle quotes within quotes (escaped quotes)
-                        if (inQuotes && i < line.length - 1 && line[i + 1] === '"') {
-                            cell += '"';
-                            i++; // Skip next quote
-                        } else {
-                            inQuotes = !inQuotes;
-                        }
-                    } else if (char === ',' && !inQuotes) {
-                        result.push(cell);
-                        cell = '';
-                    } else {
-                        cell += char;
-                    }
-                }
-                
-                result.push(cell); // Add the last cell
-                return result;
-            }
-            
-            // Initialize the inventory display
-            renderInventory();
-        });
-    </script>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Dropping Handfuls Inventory&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--primary: #8a2be2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--primary-dark: #6a1cb2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--primary-light: #aa5fe2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text-on-primary: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #333;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f8f9fa;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.app-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.header {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-on-primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.75rem 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid #e2e8f0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-button.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--primary-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-on-primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--primary);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-content {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-content.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.input-group {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.input-label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 500;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.input-field, .select-field, .textarea-field {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #d1d5db;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.25rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f9fafb;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-on-primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.75rem 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.25rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 500;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.button:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--primary-dark);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.button-secondary {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #6c757d;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.button-danger {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #dc3545;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.button-danger:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #c82333;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.file-upload {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px dashed #d1d5db;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.25rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f9fafb;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>table {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-collapse: collapse;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>th, td {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: left;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid #e2e8f0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>th {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f3f4f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.empty-state {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #6c757d;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.img-thumbnail {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-height: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>object-fit: cover;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.25rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.table-responsive {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-overflow-scrolling: touch;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.inventory-actions {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.action-button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.25rem 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 0.875rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.25rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.image-preview {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-height: 150px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.input-group {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>margin-bottom: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>th, td {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>padding: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.button {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>padding: 0.5rem 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.table-responsive {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>font-size: 0.875rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="app-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-xl font-bold"&gt;Dropping Handfuls Inventory&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="tabs flex"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="tab-button active" data-tab="inventory"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;i class="fas fa-boxes"&gt;&lt;/i&gt; Inventory</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="tab-button" data-tab="add-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;i class="fas fa-plus-circle"&gt;&lt;/i&gt; Add Item</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="tab-button" data-tab="import-export"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;i class="fas fa-file-import"&gt;&lt;/i&gt; Import/Export</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Inventory Tab --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="inventory" class="tab-content active"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="text" id="inventorySearch" class="input-field" placeholder="Search inventory..."&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="table-responsive"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;table id="inventoryTable"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Product ID&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Item Name&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Storage Location&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Category&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Cost&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Price&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Profit&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th&gt;Actions&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;tbody id="inventoryTableBody"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;!-- Inventory items will be populated here --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/tbody&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/table&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="emptyState" class="empty-state"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;i class="fas fa-box-open fa-3x mb-3"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;No inventory items found. Add some items to get started!&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Add Item Tab --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="add-item" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;form id="addItemForm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="itemName"&gt;Item Name *&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="itemName" class="input-field" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="productId"&gt;Product ID *&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="productId" class="input-field" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="storageLocation"&gt;Storage Location *&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="storageLocation" class="input-field" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="category"&gt;Category&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;select id="category" class="select-field"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Electronics"&gt;Electronics&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Home Goods"&gt;Home Goods&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Clothing"&gt;Clothing&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Toys"&gt;Toys&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Kitchen"&gt;Kitchen&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Beauty"&gt;Beauty&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Books"&gt;Books&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Other"&gt;Other&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="purchaseCost"&gt;Purchase Cost&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="purchaseCost" class="input-field" step="0.01" min="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="sellingPrice"&gt;Selling Price&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="sellingPrice" class="input-field" step="0.01" min="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="condition"&gt;Condition&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;select id="condition" class="select-field"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="New"&gt;New&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Like New"&gt;Like New&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Good"&gt;Good&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Fair"&gt;Fair&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="Poor"&gt;Poor&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="photoUpload"&gt;Photo&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="file" id="photoUpload" class="input-field" accept="image/*"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="photoPreview" class="mt-2"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="input-label" for="description"&gt;Description&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;textarea id="description" class="textarea-field" rows="3"&gt;&lt;/textarea&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="hidden" id="editItemId" value=""&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button type="submit" id="submitButton" class="button w-full"&gt;Add Item&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Import/Export Tab --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="import-export" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-lg font-semibold mb-3"&gt;Export Inventory&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="mb-3"&gt;Download your current inventory as a CSV file.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="exportCsvButton" class="button"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-file-export mr-2"&gt;&lt;/i&gt; Export to CSV</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-lg font-semibold mb-3"&gt;Import from CSV&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="mb-3"&gt;Upload a CSV file to import inventory items. Make sure your CSV has the following columns:&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;code class="block p-3 bg-gray-100 rounded mb-3 overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>Item Name, Product ID, Storage Location, Category, Purchase Cost, Selling Price, Condition, Description</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/code&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="downloadSampleCsvButton" class="button button-secondary"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-download mr-2"&gt;&lt;/i&gt; Download Sample CSV</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="file-upload"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-file-csv fa-2x mb-2"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-2"&gt;Choose CSV File&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="file" id="csvFileUpload" accept=".csv"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="importCsvButton" class="button w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-file-import mr-2"&gt;&lt;/i&gt; Import from CSV</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="importResults" class="mt-3"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', function() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Initialize variables</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let inventory = JSON.parse(localStorage.getItem('inventory')) || [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentEditItemIndex = -1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const emptyState = document.getElementById('emptyState');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const inventoryTableBody = document.getElementById('inventoryTableBody');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const addItemForm = document.getElementById('addItemForm');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tabButtons = document.querySelectorAll('.tab-button');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tabContents = document.querySelectorAll('.tab-content');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const photoUpload = document.getElementById('photoUpload');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const photoPreview = document.getElementById('photoPreview');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const inventorySearch = document.getElementById('inventorySearch');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const exportCsvButton = document.getElementById('exportCsvButton');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const importCsvButton = document.getElementById('importCsvButton');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const downloadSampleCsvButton = document.getElementById('downloadSampleCsvButton');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const csvFileUpload = document.getElementById('csvFileUpload');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const importResults = document.getElementById('importResults');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Tab switching functionality</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tabButtons.forEach(button =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>button.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const tabId = button.getAttribute('data-tab');</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Update active button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tabButtons.forEach(btn =&gt; btn.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>button.classList.add('active');</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Update active content</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tabContents.forEach(content =&gt; content.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById(tabId).classList.add('active');</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Reset form when switching to add item tab (unless editing)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (tabId === 'add-item' &amp;&amp; currentEditItemIndex === -1) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>addItemForm.reset();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>photoPreview.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('editItemId').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('submitButton').textContent = 'Add Item';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Handle photo upload preview</p>
+<p class="p1"><span class="Apple-converted-space">            </span>photoUpload.addEventListener('change', function(event) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const file = event.target.files[0];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (file) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>reader.onload = function(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>photoPreview.innerHTML = `&lt;img src="${e.target.result}" class="image-preview"&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>reader.readAsDataURL(file);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Handle inventory search</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inventorySearch.addEventListener('input', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderInventory();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Render inventory table</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function renderInventory() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const searchTerm = inventorySearch.value.toLowerCase();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let filteredInventory = inventory;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (searchTerm) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>filteredInventory = inventory.filter(item =&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.name.toLowerCase().includes(searchTerm) ||<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.productId.toLowerCase().includes(searchTerm) ||</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.storageLocation.toLowerCase().includes(searchTerm) ||</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.category.toLowerCase().includes(searchTerm)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Show/hide empty state</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (filteredInventory.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>emptyState.style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>inventoryTableBody.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>emptyState.style.display = 'none';</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Build table rows</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>inventoryTableBody.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>filteredInventory.forEach((item, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const profit = (parseFloat(item.sellingPrice) - parseFloat(item.purchaseCost)).toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const tr = document.createElement('tr');</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>tr.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;${item.productId}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;${item.name}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;${item.storageLocation}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;${item.category}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;$${parseFloat(item.purchaseCost).toFixed(2)}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;$${parseFloat(item.sellingPrice).toFixed(2)}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;$${profit}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="inventory-actions"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;button class="action-button button edit-button" data-index="${inventory.indexOf(item)}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;i class="fas fa-edit"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;button class="action-button button button-danger delete-button" data-index="${inventory.indexOf(item)}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;i class="fas fa-trash"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>inventoryTableBody.appendChild(tr);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Add edit and delete event listeners</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>document.querySelectorAll('.edit-button').forEach(button =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>button.addEventListener('click', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const index = parseInt(button.getAttribute('data-index'));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>editItem(index);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>document.querySelectorAll('.delete-button').forEach(button =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>button.addEventListener('click', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const index = parseInt(button.getAttribute('data-index'));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>deleteItem(index);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Add/Edit item form submission</p>
+<p class="p1"><span class="Apple-converted-space">            </span>addItemForm.addEventListener('submit', function(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>e.preventDefault();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Get form values</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const itemData = {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>name: document.getElementById('itemName').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>productId: document.getElementById('productId').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>storageLocation: document.getElementById('storageLocation').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>category: document.getElementById('category').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>purchaseCost: document.getElementById('purchaseCost').value || '0.00',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>sellingPrice: document.getElementById('sellingPrice').value || '0.00',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>condition: document.getElementById('condition').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>description: document.getElementById('description').value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>photo: photoPreview.innerHTML ? photoPreview.querySelector('img').src : ''</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (currentEditItemIndex !== -1) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Update existing item</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>inventory[currentEditItemIndex] = itemData;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>currentEditItemIndex = -1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Add new item</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>inventory.push(itemData);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Save to localStorage</p>
+<p class="p1"><span class="Apple-converted-space">                </span>localStorage.setItem('inventory', JSON.stringify(inventory));</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Reset form and switch to inventory tab</p>
+<p class="p1"><span class="Apple-converted-space">                </span>addItemForm.reset();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>photoPreview.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('editItemId').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('submitButton').textContent = 'Add Item';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Switch to inventory tab</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.querySelector('.tab-button[data-tab="inventory"]').click();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Refresh inventory display</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderInventory();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Edit item function</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function editItem(index) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const item = inventory[index];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentEditItemIndex = index;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Populate form with item data</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('itemName').value = item.name;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('productId').value = item.productId;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('storageLocation').value = item.storageLocation;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('category').value = item.category;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('purchaseCost').value = item.purchaseCost;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('sellingPrice').value = item.sellingPrice;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('condition').value = item.condition;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('description').value = item.description;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (item.photo) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>photoPreview.innerHTML = `&lt;img src="${item.photo}" class="image-preview"&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>photoPreview.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('editItemId').value = index;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('submitButton').textContent = 'Update Item';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Switch to add item tab</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.querySelector('.tab-button[data-tab="add-item"]').click();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Delete item function</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function deleteItem(index) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (confirm('Are you sure you want to delete this item?')) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>inventory.splice(index, 1);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>localStorage.setItem('inventory', JSON.stringify(inventory));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>renderInventory();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Export to CSV</p>
+<p class="p1"><span class="Apple-converted-space">            </span>exportCsvButton.addEventListener('click', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (inventory.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>alert('No inventory items to export.');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Create CSV content</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let csvContent = headers.join(',') + '\n';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>inventory.forEach(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const row = [</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.name.replace(/"/g, '""')}"`,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.productId.replace(/"/g, '""')}"`,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.storageLocation.replace(/"/g, '""')}"`,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.category.replace(/"/g, '""')}"`,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.purchaseCost,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>item.sellingPrice,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.condition.replace(/"/g, '""')}"`,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>`"${item.description.replace(/"/g, '""')}"`</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>csvContent += row.join(',') + '\n';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Create download link</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const url = URL.createObjectURL(blob);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const link = document.createElement('a');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.setAttribute('href', url);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.setAttribute('download', 'dropping_handfuls_inventory.csv');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.style.visibility = 'hidden';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.appendChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.click();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.removeChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Download sample CSV</p>
+<p class="p1"><span class="Apple-converted-space">            </span>downloadSampleCsvButton.addEventListener('click', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const headers = ['Item Name', 'Product ID', 'Storage Location', 'Category', 'Purchase Cost', 'Selling Price', 'Condition', 'Description'];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sampleData = [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>['"Smart Watch"', '"ELEC001"', '"Shelf A1"', '"Electronics"', '25.00', '65.00', '"Like New"', '"Amazon returned smartwatch, works perfectly"'],</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>['"Kitchen Mixer"', '"HOME002"', '"Bin B3"', '"Home Goods"', '35.00', '89.99', '"Good"', '"Stand mixer, minor cosmetic damage on base"'],</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>['"Toy Robot"', '"TOY003"', '"Box C2"', '"Toys"', '10.00', '24.99', '"New"', '"Still in original packaging"']</p>
+<p class="p1"><span class="Apple-converted-space">                </span>];</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let csvContent = headers.join(',') + '\n';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sampleData.forEach(row =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>csvContent += row.join(',') + '\n';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const url = URL.createObjectURL(blob);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const link = document.createElement('a');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.setAttribute('href', url);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.setAttribute('download', 'sample_inventory.csv');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.style.visibility = 'hidden';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.appendChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.click();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.removeChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Import from CSV</p>
+<p class="p1"><span class="Apple-converted-space">            </span>importCsvButton.addEventListener('click', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const file = csvFileUpload.files[0];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!file) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>alert('Please select a CSV file to import.');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>reader.onload = function(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const contents = e.target.result;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const lines = contents.split('\n');</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (lines.length &lt; 2) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>importResults.innerHTML = '&lt;div class="p-3 bg-red-100 text-red-700 rounded"&gt;CSV file is empty or invalid.&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Get headers</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const headers = lines[0].split(',').map(header =&gt; header.trim());</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const requiredHeaders = ['Item Name', 'Product ID', 'Storage Location'];</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Validate headers</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const missingHeaders = requiredHeaders.filter(header =&gt; !headers.includes(header));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (missingHeaders.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>importResults.innerHTML = `&lt;div class="p-3 bg-red-100 text-red-700 rounded"&gt;CSV file is missing required headers: ${missingHeaders.join(', ')}&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Process rows</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let importedCount = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let errors = [];</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = 1; i &lt; lines.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (!lines[i].trim()) continue; // Skip empty lines</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Parse CSV line properly handling quotes</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const values = parseCSVLine(lines[i]);</p>
+<p class="p2"><span class="Apple-converted-space">                            </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Create item object</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const item = {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>name: values[headers.indexOf('Item Name')] || '',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>productId: values[headers.indexOf('Product ID')] || '',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>storageLocation: values[headers.indexOf('Storage Location')] || '',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>category: values[headers.indexOf('Category')] || 'Other',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>purchaseCost: values[headers.indexOf('Purchase Cost')] || '0.00',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>sellingPrice: values[headers.indexOf('Selling Price')] || '0.00',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>condition: values[headers.indexOf('Condition')] || 'Good',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>description: values[headers.indexOf('Description')] || '',</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>photo: ''</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">                            </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Validate required fields</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (!item.name || !item.productId || !item.storageLocation) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>errors.push(`Row ${i}: Missing required fields`);</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>continue;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                            </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Check for duplicate Product ID</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const duplicateIndex = inventory.findIndex(existingItem =&gt; existingItem.productId === item.productId);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (duplicateIndex !== -1) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>// Update existing item</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>inventory[duplicateIndex] = item;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>// Add new item</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>inventory.push(item);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                            </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>importedCount++;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>errors.push(`Row ${i}: ${error.message}`);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Save to localStorage</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>localStorage.setItem('inventory', JSON.stringify(inventory));</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Show results</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let resultHTML = `&lt;div class="p-3 bg-green-100 text-green-700 rounded mb-2"&gt;Successfully imported ${importedCount} items.&lt;/div&gt;`;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (errors.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultHTML += `&lt;div class="p-3 bg-yellow-100 text-yellow-700 rounded"&gt;Errors encountered:</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;ul class="list-disc pl-5 mt-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>${errors.map(error =&gt; `&lt;li&gt;${error}&lt;/li&gt;`).join('')}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>importResults.innerHTML = resultHTML;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Refresh inventory display</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>renderInventory();</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Reset file input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>csvFileUpload.value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>reader.readAsText(file);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Helper function to parse CSV line handling quotes correctly</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function parseCSVLine(line) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const result = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let cell = '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let inQuotes = false;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; line.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const char = line[i];</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (char === '"') {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Handle quotes within quotes (escaped quotes)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (inQuotes &amp;&amp; i &lt; line.length - 1 &amp;&amp; line[i + 1] === '"') {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>cell += '"';</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>i++; // Skip next quote</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>inQuotes = !inQuotes;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else if (char === ',' &amp;&amp; !inQuotes) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>result.push(cell);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>cell = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>cell += char;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>result.push(cell); // Add the last cell</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return result;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Initialize the inventory display</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderInventory();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
 </body>
 </html>
